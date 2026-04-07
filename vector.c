@@ -16,13 +16,13 @@ typedef struct {
 } vector;
 
 vector *make_vector(size_t capacity, data_type_t data_type) {
-  vector *s = malloc(sizeof(vector));
-  if (s == NULL)
+  vector *v = malloc(sizeof(vector));
+  if (v == NULL)
     return NULL;
 
-  s->len = 0;
-  s->capacity = capacity;
-  s->data_type = data_type;
+  v->len = 0;
+  v->capacity = capacity;
+  v->data_type = data_type;
 
   size_t size_of_data;
   switch (data_type) {
@@ -36,13 +36,13 @@ vector *make_vector(size_t capacity, data_type_t data_type) {
     return NULL;
   }
 
-  s->data = malloc(capacity * size_of_data);
-  if (s->data == NULL)
+  v->data = malloc(capacity * size_of_data);
+  if (v->data == NULL)
     return NULL;
 
-  memset(s->data, 0, capacity * size_of_data);
+  memset(v->data, 0, capacity * size_of_data);
 
-  return s;
+  return v;
 }
 
 int main() {
