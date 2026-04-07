@@ -13,10 +13,10 @@ typedef struct {
   size_t len;
   size_t capacity;
   data_type_t data_type;
-} slice;
+} vector;
 
-slice *make_slice(size_t capacity, data_type_t data_type) {
-  slice *s = malloc(sizeof(slice));
+vector *make_vector(size_t capacity, data_type_t data_type) {
+  vector *s = malloc(sizeof(vector));
   if (s == NULL)
     return NULL;
 
@@ -46,15 +46,15 @@ slice *make_slice(size_t capacity, data_type_t data_type) {
 }
 
 int main() {
-  slice *s1 = make_slice(10, TYPE_INT);
+  vector *v1 = make_vector(10, TYPE_INT);
   for (int i = 0; i < 10; i++) {
-    *(int *)(s1->data) = i;
-    printf("%d) %d\n", i, *(int *)(s1->data));
+    *(int *)(v1->data) = i;
+    printf("%d) %d\n", i, *(int *)(v1->data));
   }
 
-  slice *s2 = make_slice(10, TYPE_DOUBLE);
+  vector *v2 = make_vector(10, TYPE_DOUBLE);
   for (int i = 0; i < 10; i++) {
-    *(double *)(s2->data) = i * 1.25;
-    printf("%d) %f\n", i, *(double *)(s2->data));
+    *(double *)(v2->data) = i * 1.25;
+    printf("%d) %f\n", i, *(double *)(v2->data));
   }
 }
