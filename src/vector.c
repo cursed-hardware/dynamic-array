@@ -4,6 +4,7 @@
 #include <string.h>
 
 typedef enum {
+  UNDEFINED,
   TYPE_INT,
   TYPE_DOUBLE,
 } data_type_t;
@@ -45,16 +46,30 @@ vector *make_vector(size_t capacity, data_type_t data_type) {
   return v;
 }
 
+void free_vector(vector *v) {
+  // TODO добавить обработку ошибки
+  if (v == NULL)
+    return;
+
+  v->capacity = 0;
+  v->len = 0;
+  v->data_type = UNDEFINED;
+  free(v->data);
+  free(v);
+}
+
 int main() {
   vector *v1 = make_vector(10, TYPE_INT);
   for (int i = 0; i < 10; i++) {
     *(int *)(v1->data) = i;
     printf("%d) %d\n", i, *(int *)(v1->data));
   }
+  free_vector(v1);
 
   vector *v2 = make_vector(10, TYPE_DOUBLE);
   for (int i = 0; i < 10; i++) {
     *(double *)(v2->data) = i * 1.25;
     printf("%d) %f\n", i, *(double *)(v2->data));
   }
+  free_vector(v2);
 }
