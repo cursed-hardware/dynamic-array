@@ -6,7 +6,7 @@ BIN_DIR := bin
 
 TARGET := vector
 
-target:
+$(TARGET):
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/$(TARGET) $(SRC_DIR)/vector.c
 
 clean:
@@ -14,3 +14,7 @@ clean:
 
 run:
 	exec $(BIN_DIR)/vector
+
+valgrind: $(TARGET)
+	exec valgrind -s $(BIN_DIR)/vector > /dev/null
+	
