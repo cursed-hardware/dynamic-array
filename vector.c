@@ -1,42 +1,60 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-enum {
+typedef enum {
   TYPE_INT,
   TYPE_DOUBLE,
-  TYPE_CUSTOM,
-} type_of_data_t;
+} data_type_t;
 
 typedef struct {
   void *data;
   size_t len;
   size_t capacity;
-  size_t size_of_data;
+  data_type_t data_type;
 } slice;
 
-slice *make_slice(size_t capacity, size_t sizeo_of_data) {
+slice *make_slice(size_t capacity, data_type_t data_type) {
   slice *s = malloc(sizeof(slice));
   if (s == NULL)
     return NULL;
 
   s->len = 0;
   s->capacity = capacity;
-  s->size_of_data = sizeo_of_data;
+  s->data_type = data_type;
 
-  s->data = malloc(capacity * sizeo_of_data);
+  size_t size_of_data;
+  switch (data_type) {
+  case TYPE_INT:
+    size_of_data = sizeof(int);
+    break;
+  case TYPE_DOUBLE:
+    size_of_data = sizeof(double);
+    break;
+  default:
+    return NULL;
+  }
+
+  s->data = malloc(capacity * size_of_data);
   if (s->data == NULL)
     return NULL;
 
-  memset(s->data, 0, capacity * sizeo_of_data);
+  memset(s->data, 0, capacity * size_of_data);
 
   return s;
 }
 
 int main() {
-  slice *s = make_slice(10, sizeof(int));
+  slice *s1 = make_slice(10, TYPE_INT);
   for (int i = 0; i < 10; i++) {
-    *(int *)(s->data) = i;
-    printf("%d) %d\n", i, *(int *)(s->data));
+    *(int *)(s1->data) = i;
+    printf("%d) %d\n", i, *(int *)(s1->data));
+  }
+
+  slice *s2 = make_slice(10, TYPE_DOUBLE);
+  for (int i = 0; i < 10; i++) {
+    *(double *)(s2->data) = i * 1.25;
+    printf("%d) %f\n", i, *(double *)(s2->data));
   }
 }
