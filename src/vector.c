@@ -3,73 +3,85 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define VECTOR_GROW_MULT 2
+
 typedef enum {
-  UNDEFINED,
-  TYPE_INT,
-  TYPE_DOUBLE,
-} data_type_t;
+  VECTOR_SUCCESS,       // Успешное выполнение
+  VECTOR_EQUALS_NULL,   // Проверка на нулевой вектор не пройдена
+  VECTOR_MALLOC_ERROR,  // Ошибка при аллокации памяти
+  VECTOR_REALLOC_ERROR, // Ошибка при аллокации памяти
+} vector_errors_t;
 
 typedef struct {
   void *data;
   size_t len;
   size_t capacity;
-  data_type_t data_type;
+  size_t elem_size;
 } vector;
 
-vector *make_vector(size_t capacity, data_type_t data_type) {
+// Выделяет память под вектор, инициализирует переменные структуры вектора
+// В случае неудачи при выделении памяти возвращает нулевой указатель
+// В случае успеха возвращает указатель на вектор
+vector *make_vector(size_t capacity, size_t elem_size) {
   vector *v = malloc(sizeof(vector));
-  if (v == NULL)
+  if (!v)
     return NULL;
 
   v->len = 0;
+  v->elem_size = elem_size;
   v->capacity = capacity;
-  v->data_type = data_type;
 
-  size_t size_of_data;
-  switch (data_type) {
-  case TYPE_INT:
-    size_of_data = sizeof(int);
-    break;
-  case TYPE_DOUBLE:
-    size_of_data = sizeof(double);
-    break;
-  default:
-    return NULL;
+  if (capacity) {
+    v->data = malloc(capacity * elem_size);
+    if (v->data == NULL)
+      return NULL;
   }
-
-  v->data = malloc(capacity * size_of_data);
-  if (v->data == NULL)
-    return NULL;
-
-  memset(v->data, 0, capacity * size_of_data);
 
   return v;
 }
 
-void free_vector(vector *v) {
-  // TODO добавить обработку ошибки
-  if (v == NULL)
-    return;
+// Освобождает память массива данных и вектора
+// Возвращает коды ошибок описанные в vector_errors_t
+vector_errors_t free_vector(vector *v) {
+  if (!v)
+    return VECTOR_EQUALS_NULL;
 
-  v->capacity = 0;
-  v->len = 0;
-  v->data_type = UNDEFINED;
   free(v->data);
   free(v);
+
+  return VECTOR_SUCCESS;
+}
+
+vector_errors_t vector_push_back(vector *v, void *elem) {
+  if (!v || !elem)
+    return VECTOR_EQUALS_NULL;
+
+  if (v->len == v->capacity) {
+    size_t new_capacity =
+        (v->capacity == 0) ? 1 : (v->capacity * VECTOR_GROW_MULT);
+
+    void *new_data = realloc(v->data, new_capacity * v->elem_size);
+    if (!new_data)
+      return VECTOR_REALLOC_ERROR;
+
+    v->data = new_data;
+    v->capacity = new_capacity;
+  }
+
+  char *dest = (char *)v->data + v->len * v->elem_size;
+  memcpy(dest, elem, v->elem_size);
+
+  v->len++;
+
+  return VECTOR_SUCCESS;
 }
 
 int main() {
-  vector *v1 = make_vector(10, TYPE_INT);
+  vector *v1 = make_vector(10, sizeof(int));
+
+  vector_push_back(v1, &(int){10});
   for (int i = 0; i < 10; i++) {
-    *(int *)(v1->data) = i;
-    printf("%d) %d\n", i, *(int *)(v1->data));
+    printf("%d) %d\n", i, (((int *)(v1->data))[i]));
   }
   free_vector(v1);
-
-  vector *v2 = make_vector(10, TYPE_DOUBLE);
-  for (int i = 0; i < 10; i++) {
-    *(double *)(v2->data) = i * 1.25;
-    printf("%d) %f\n", i, *(double *)(v2->data));
-  }
-  free_vector(v2);
 }
