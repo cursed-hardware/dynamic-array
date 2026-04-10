@@ -6,53 +6,60 @@
 #define VECTOR_GROW_MULT 2
 
 typedef enum {
-  VECTOR_SUCCESS,       // Успешное выполнение
-  VECTOR_EQUALS_NULL,   // Проверка на нулевой вектор не пройдена
-  VECTOR_MALLOC_ERROR,  // Ошибка при аллокации памяти
-  VECTOR_REALLOC_ERROR, // Ошибка при аллокации памяти
+  VECTOR_SUCCESS,              // Успешное выполнение
+  VECTOR_EQUALS_NULL,          // Проверка на нулевой вектор не пройдена
+  VECTOR_MALLOC_ERROR,         // Ошибка при аллокации памяти
+  VECTOR_REALLOC_ERROR,        // Ошибка при аллокации памяти
+  VECTOR_ELEM_SIZE_EQUALS_ZERO // Размер элемента вектора равен нулю
 } vector_errors_t;
 
 typedef struct {
-  void *data;
-  size_t len;
-  size_t capacity;
-  size_t elem_size;
+  void *data;       // Указатель на область памяти, содержащую данные
+  size_t len;       // Длина вектора
+  size_t capacity;  // Максимальная длина вектора
+  size_t elem_size; // размер одного элемента вектора
 } vector;
 
-// Выделяет память под вектор, инициализирует переменные структуры вектора
-// В случае неудачи при выделении памяти возвращает нулевой указатель
-// В случае успеха возвращает указатель на вектор
-vector *make_vector(size_t capacity, size_t elem_size) {
-  vector *v = malloc(sizeof(vector));
+// Выделяет память, инициализирует поля структуры вектора
+vector_errors_t make_vector(vector *v, size_t capacity, size_t elem_size) {
   if (!v)
-    return NULL;
+    return VECTOR_EQUALS_NULL;
+
+  if (!elem_size)
+    return VECTOR_ELEM_SIZE_EQUALS_ZERO;
+
+  if (capacity) {
+    v->data = malloc(capacity * elem_size);
+    if (v->data == NULL)
+      return VECTOR_MALLOC_ERROR;
+  } else {
+    v->data = NULL;
+  }
 
   v->len = 0;
   v->elem_size = elem_size;
   v->capacity = capacity;
 
-  if (capacity) {
-    v->data = malloc(capacity * elem_size);
-    if (v->data == NULL)
-      return NULL;
-  }
-
-  return v;
+  return VECTOR_SUCCESS;
 }
 
 // Освобождает память массива данных и вектора
-// Возвращает коды ошибок описанные в vector_errors_t
 vector_errors_t free_vector(vector *v) {
   if (!v)
     return VECTOR_EQUALS_NULL;
 
+  v->capacity = 0;
+  v->elem_size = 0;
+  v->len = 0;
+
   free(v->data);
-  free(v);
+  v->data = NULL;
 
   return VECTOR_SUCCESS;
 }
 
-vector_errors_t vector_push_back(vector *v, void *elem) {
+// Запись нового элемента в конец вектора
+vector_errors_t vector_push_back(vector *v, const void *elem) {
   if (!v || !elem)
     return VECTOR_EQUALS_NULL;
 
@@ -77,11 +84,13 @@ vector_errors_t vector_push_back(vector *v, void *elem) {
 }
 
 int main() {
-  vector *v1 = make_vector(10, sizeof(int));
+  vector v1;
+  make_vector(&v1, 10, sizeof(int));
 
-  vector_push_back(v1, &(int){10});
+  vector_push_back(&v1, &(int){10});
   for (int i = 0; i < 10; i++) {
-    printf("%d) %d\n", i, (((int *)(v1->data))[i]));
+    printf("%d) %d\n", i, (((int *)(v1.data))[i]));
   }
-  free_vector(v1);
+
+  free_vector(&v1);
 }
