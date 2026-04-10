@@ -81,7 +81,9 @@ vector_errors_t vector_push_back(vector *v, const void *elem) {
   if (!v || !elem)
     return VECTOR_EQUALS_NULL;
 
-  check_capacity(v);
+  vector_errors_t err = check_capacity(v);
+  if (!err)
+    return VECTOR_REALLOC_ERROR;
 
   void *dest = (char *)v->data + v->len * v->elem_size;
   memcpy(dest, elem, v->elem_size);
@@ -97,7 +99,9 @@ vector_errors_t vector_insert(vector *v, const void *elem, int index) {
   if (index < 0 || index >= v->len)
     return VECTOR_OUT_OF_BOUND;
 
-  check_capacity(v);
+  vector_errors_t err = check_capacity(v);
+  if (!err)
+    return VECTOR_REALLOC_ERROR;
 
   void *index_pointer = (char *)v->data + v->elem_size * index;
   void *move_dest = (char *)index_pointer + v->elem_size;
@@ -121,9 +125,9 @@ vector_errors_t vector_pop_back(vector *v) {
 }
 
 vector_errors_t vector_get(vector *v, void *out, int index) {
-  if (!v)
+  if (!v || !out)
     return VECTOR_EQUALS_NULL;
-  if (index < 0 || index >= v->len)
+  if (index < 0 || index > v->len)
     return VECTOR_OUT_OF_BOUND;
 
   memcpy(out, (char *)v->data + index * v->elem_size, v->elem_size);
