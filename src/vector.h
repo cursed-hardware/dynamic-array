@@ -13,7 +13,7 @@ typedef enum {
 } vector_errors_t;
 
 // Структура вектора
-typedef struct vector vector; 
+typedef struct vector v; 
 
 // Создание и освобождение вектора
 vector_errors_t make_vector(vector *v, int capacity, int elem_size);

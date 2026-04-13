@@ -1,6 +1,5 @@
 #include "vector.h"
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -52,7 +51,7 @@ vector_errors_t vector_free(vector *v) {
 }
 
 // Проверка возможности вставить новый элемент
-vector_errors_t check_capacity(vector *v) {
+static vector_errors_t check_capacity(vector *v) {
   if (v->len == v->capacity) {
     int new_capacity =
         (v->capacity == 0) ? 1 : (v->capacity * VECTOR_GROW_MULT);
