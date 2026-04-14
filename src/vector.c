@@ -13,7 +13,7 @@ struct vector {
 };
 
 // Выделяет память, инициализирует пол
-vector_errors_t make_vector(vector *v, int capacity, int elem_size) {
+vector_errors_t vector_make(vector *v, int capacity, int elem_size) {
   if (!v)
     return VECTOR_NULL_POINTER;
 
