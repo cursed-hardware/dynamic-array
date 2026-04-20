@@ -1,20 +1,32 @@
-CC := gcc
-CFLAGS := -Wall -Wextra -pedantic
+# Компилятор и флаги
+CC = gcc
+CFLAGS = -Wall -Wextra -pedantic
 
-SRC_DIR := src
-BIN_DIR := bin
+# Директории
+SRC_DIR = src
+BIN_DIR = bin
+OBJ_DIR = obj
+TEST_DIR = test
 
-TARGET := vector
+EXAMPLE_TARTGET = $(BIN_DIR)/main
+TEST_TARGET = $(BIN_DIR)/test
 
-$(TARGET):
-	$(CC) $(CFLAGS) -o $(BIN_DIR)/$(TARGET) $(SRC_DIR)/vector.c
+$(OBJ_DIR) $(BIN_DIR):
+	mkdir -p $@
+
+test: test.o vector.o
+
+example:
+
+valgrind:
 
 clean:
 	rm -rf $(BIN_DIR)/*
+	rm -rf $(OBJ_DIR)/*
 
-run:
-	exec $(BIN_DIR)/vector
-
-valgrind: $(TARGET)
-	exec valgrind -s $(BIN_DIR)/vector > /dev/null
-	
+help:
+	@echo "Доступные цели:"
+	@echo "  test       - собрать и запустить тесты"
+	@echo "  valgrind   - проверить тесты на утечку памяти"
+	@echo "  example    - собрать и запустить пример"
+	@echo "  clean      - удалить bin/* и obj/*"
